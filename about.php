@@ -19,6 +19,7 @@ include("header.php");
                <div class="col-md-12">
                   <div class="full">
                      <h3>About us</h3>
+                     <p>Welcome to FAMMS , a unique online shopping experience designed as my final project for studies. This platform reflects a culmination of my education, passion, and dedication. Each product is thoughtfully curated, showcasing a blend of style and innovation. Explore and shop confidently, knowing that FAMMS is not just a destination for great products but also a testament to my commitment to excellence in my academic journey.</p>
                   </div>
                </div>
             </div>
