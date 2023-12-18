@@ -18,16 +18,21 @@ session_start();
         if (empty($productName) || empty($productQuantity) || empty($productPrice)) {
             $errorMessage = "Please fill in all required fields.";
         } else {
-            // Insert the new product into the database
+            // Insert the new product into the database using a prepared statement
             $insertProductQuery = "INSERT INTO `product` (`name`, `quantity`, `price`, `img_url`, `description`, `img_path`) 
-                                   VALUES ('$productName', '$productQuantity', '$productPrice', '$productImageUrl', '$productDescription', '$productImagePath')";
+                                   VALUES (?, ?, ?, ?, ?, ?)";
 
-            if ($con->query($insertProductQuery)) {
+            $stmt = $con->prepare($insertProductQuery);
+            $stmt->bind_param("siisss", $productName, $productQuantity, $productPrice, $productImageUrl, $productDescription, $productImagePath);
+
+            if ($stmt->execute()) {
                 // Product inserted successfully, you can also add additional logic if needed
                 $successMessage = "Product added successfully.";
             } else {
-                $errorMessage = "Error adding the product: " . $con->error;
+                $errorMessage = "Error adding the product: " . $stmt->error;
             }
+
+            $stmt->close();
         }
     }
   // Process the image upload
@@ -47,12 +52,12 @@ session_start();
 
 
 <head>
-		<!-- MATERIAL DESIGN ICONIC FONT -->
-		<link rel="stylesheet" href="fonts/material-design-iconic-font/css/material-design-iconic-font.min.css">
-		
-		<!-- STYLE CSS -->
-		<link rel="stylesheet" href="../Rcss/style.css">
-	</head>
+    <!-- MATERIAL DESIGN ICONIC FONT -->
+    <link rel="stylesheet" href="fonts/material-design-iconic-font/css/material-design-iconic-font.min.css">
+    
+    <!-- STYLE CSS -->
+    <link rel="stylesheet" href="../Rcss/style.css">
+</head>
 <body>
     <div class="container mt-5">
      
@@ -66,45 +71,41 @@ session_start();
         <?php endif; ?>
 
 
-		<div class="wrapper" style="background-image: url('Rimages/bg-registration-form-2.jpg'); ">
-			<div class="inner">
-				  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-					<h3> Add a product</h3>
-					
-						<div class="form-wrapper">
-						<label for="product_name" class="form-label">Product Name:</label>
+        <div class="wrapper" style="background-image: url('Rimages/bg-registration-form-2.jpg'); ">
+            <div class="inner">
+                  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+                    <h3> Add a product</h3>
+                    
+                        <div class="form-wrapper">
+                        <label for="product_name" class="form-label">Product Name:</label>
                         <input type="text" name="product_name" class="form-control" required>
-					</div>
-						<div class="form-wrapper">
-						<label for="product_quantity" class="form-label">Quantity:</label>
+                    </div>
+                        <div class="form-wrapper">
+                        <label for="product_quantity" class="form-label">Quantity:</label>
                 <input type="number" name="product_quantity" class="form-control" required>
-					</div>
-					<div class="form-wrapper">
-						  <label for="product_price" class="form-label">Price:</label>
-                <input type="text" name="product_price" class="form-control" required>
-					</div>
-                    	<div class="form-wrapper">
-						    <label for="product_image_url" class="form-label">Image URL:</label>
-                <input type="file" name="product_image_url" class="form-control" required>
-					</div>
-                    	<div class="form-wrapper">
-						 <label for="product_description" class="form-label">Description:</label>
-                <textarea name="product_description" class="form-control" rows="4" required></textarea>
-					</div>
+                    </div>
                     <div class="form-wrapper">
-						 <label for="product_image_path" class="form-label">Image Path:</label>
+                          <label for="product_price" class="form-label">Price:</label>
+                <input type="text" name="product_price" class="form-control" required>
+                    </div>
+                        <div class="form-wrapper">
+                         <label for="product_image_url" class="form-label">Image URL:</label>
+                <input type="file" name="product_image_url" class="form-control" required>
+                    </div>
+                        <div class="form-wrapper">
+                         <label for="product_description" class="form-label">Description:</label>
+                <textarea name="product_description" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="form-wrapper">
+                         <label for="product_image_path" class="form-label">Image Path:</label>
                 <input type="text" name="product_image_path" class="form-control" required>
-					</div>
-					
-					<button>Add product</button>
-				</form>
-			</div>
-		</div>
+                    </div>
+                    
+                    <button>Add product</button>
+                </form>
+            </div>
+        </div>
         </form>
     </div>
-
-
 </body>
-
 </html>
-

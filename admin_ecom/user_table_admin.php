@@ -2,9 +2,12 @@
 include("../db.php");
 include("../head.php");
 
-// Fetch all users
+// Fetch all users using a prepared statement
 $userQuery = "SELECT * FROM `user`";
-$userResult = $con->query($userQuery);
+$stmt = $con->prepare($userQuery);
+$stmt->execute();
+$userResult = $stmt->get_result();
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">

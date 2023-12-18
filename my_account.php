@@ -2,7 +2,6 @@
 include("db.php");
 
 if (!session_id()) session_start();
- // Include the database connection file at the beginning
 
 // Start the session for storing user information
 
@@ -12,10 +11,12 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Retrieve user information
+// Retrieve user information using prepared statement
 $userId = $_SESSION['user_id'];
-$getUserQuery = "SELECT * FROM `user` WHERE `id` = $userId";
-$result = $con->query($getUserQuery);
+$getUserQuery = $con->prepare("SELECT * FROM `user` WHERE `id` = ?");
+$getUserQuery->bind_param("i", $userId);
+$getUserQuery->execute();
+$result = $getUserQuery->get_result();
 
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
@@ -39,7 +40,7 @@ if ($result->num_rows > 0) {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: rgb(214,214,214);
+            background-color: rgb(214, 214, 214);
             color: black;
         }
 
@@ -89,13 +90,12 @@ if ($result->num_rows > 0) {
     </nav>
 
     <div class="content">
-        <h2>Welcome, <?php echo $user['user_name']; ?>!</h2>
-        <p>Email: <?php echo $user['email']; ?></p>
-        <p>First Name: <?php echo $user['fname']; ?></p>
-        <p>Last Name: <?php echo $user['lname']; ?></p>
+        <h2>Welcome, <?php echo htmlspecialchars($user['user_name']); ?>!</h2>
+        <p>Email: <?php echo htmlspecialchars($user['email']); ?></p>
+        <p>First Name: <?php echo htmlspecialchars($user['fname']); ?></p>
+        <p>Last Name: <?php echo htmlspecialchars($user['lname']); ?></p>
     </div>
 
 </body>
 
 </html>
-

@@ -24,8 +24,7 @@ if (isset($_GET['add_to_cart']) && isset($_GET['product_id'])) {
 
     // Update the cart button badge
     updateCartBadge();
-   echo '<script type="text/javascript">window.location.href="cart.php";</script>';
-
+    echo '<script type="text/javascript">window.location.href="cart.php";</script>';
     exit();
 }
 
@@ -56,7 +55,7 @@ if (isset($_POST['update_cart'])) {
 
     // Update the cart button badge
     updateCartBadge();
-   echo '<script type="text/javascript">window.location.href="cart.php";</script>';
+    echo '<script type="text/javascript">window.location.href="cart.php";</script>';
     exit();
 }
 
@@ -67,35 +66,55 @@ if (isset($_GET['clear_cart'])) {
 
     // Update the cart button badge
     updateCartBadge();
-   echo '<script type="text/javascript">window.location.href="cart.php";</script>';
+    echo '<script type="text/javascript">window.location.href="cart.php";</script>';
     exit();
 }
 
 // Checkout Process
 if (isset($_GET['checkout'])) {
     // Insert order details into the user_order table
-    $user_id = $_SESSION['user_id']; // Assuming you have the user's ID in the session
-    $ref = 'ORDER-' . uniqid(); // Generate a unique reference for the order
+    $user_id = $_SESSION['user_id'];
+    $ref = 'ORDER-' . uniqid();
     $date = date('Y-m-d');
     $total = $totalPrice;
 
-    // Insert the order into the user_order table
-    $insertOrderQuery = "INSERT INTO user_order (ref, date, total, user_id) VALUES ('$ref', '$date', $total, $user_id)";
-    mysqli_query($con, $insertOrderQuery);
+    // Utilisation d'une requête préparée pour l'insertion
+    $insertOrderQuery = "INSERT INTO user_order (ref, date, total, user_id) VALUES (?, ?, ?, ?)";
 
-    // Get the ID of the newly inserted order
+    // Préparation de la requête
+    $stmt = mysqli_prepare($con, $insertOrderQuery);
+
+    // Liaison des paramètres
+    mysqli_stmt_bind_param($stmt, "ssdi", $ref, $date, $total, $user_id);
+
+    // Exécution de la requête préparée
+    mysqli_stmt_execute($stmt);
+
+    // Fermeture de la requête préparée
+    mysqli_stmt_close($stmt);
+
+    // Récupération de l'ID de la commande nouvellement insérée
     $order_id = mysqli_insert_id($con);
 
     // Insert items into the order_has_product table
     foreach ($_SESSION['cart'] as $product_id => $quantity) {
-        $productQuery = "SELECT * FROM `product` WHERE `id` = $product_id";
-        $result = $con->query($productQuery);
+        $productQuery = "SELECT * FROM `product` WHERE `id` = ?";
+        $stmt = mysqli_prepare($con, $productQuery);
+        mysqli_stmt_bind_param($stmt, "i", $product_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
 
-        if ($result->num_rows > 0) {
-            $product = $result->fetch_assoc();
+        if ($result && $product = mysqli_fetch_assoc($result)) {
             $price = $product['price'];
-            $insertOrderItemQuery = "INSERT INTO order_has_product (order_id, product_id, quantity, price) VALUES ($order_id, $product_id, $quantity, $price)";
-            mysqli_query($con, $insertOrderItemQuery);
+
+            // Utilisation d'une requête préparée pour l'insertion
+            $insertOrderItemQuery = "INSERT INTO order_has_product (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+            $stmt = mysqli_prepare($con, $insertOrderItemQuery);
+            mysqli_stmt_bind_param($stmt, "iiid", $order_id, $product_id, $quantity, $price);
+            mysqli_stmt_execute($stmt);
+
+            // Fermeture de la requête préparée
+            mysqli_stmt_close($stmt);
         }
     }
 
@@ -104,10 +123,9 @@ if (isset($_GET['checkout'])) {
     updateCartBadge();
 
     // Redirect to the order confirmation page or display a success message
-   echo '<script type="text/javascript">window.location.href="cart.php";</script>';
+    echo '<script type="text/javascript">window.location.href="cart.php";</script>';
     exit();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -173,11 +191,13 @@ if (isset($_GET['checkout'])) {
                         $totalPrice = 0;
 
                         foreach ($_SESSION['cart'] as $product_id => $quantity):
-                            $productQuery = "SELECT * FROM `product` WHERE `id` = $product_id";
-                            $result = $con->query($productQuery);
+                            $productQuery = "SELECT * FROM `product` WHERE `id` = ?";
+                            $stmt = mysqli_prepare($con, $productQuery);
+                            mysqli_stmt_bind_param($stmt, "i", $product_id);
+                            mysqli_stmt_execute($stmt);
+                            $result = mysqli_stmt_get_result($stmt);
 
-                            if ($result->num_rows > 0):
-                                $product = $result->fetch_assoc();
+                            if ($result && $product = mysqli_fetch_assoc($result)) {
                                 $subtotal = $quantity * $product['price'];
                                 $totalPrice += $subtotal;
                         ?>
@@ -196,7 +216,10 @@ if (isset($_GET['checkout'])) {
                                     <a href="cart.php?remove_from_cart=true&product_id=<?php echo $product_id; ?>" class="btn btn-danger">Remove</a>
                                 </td>
                             </tr>
-                        <?php endif; endforeach; ?>
+                        <?php
+                            }
+                        endforeach;
+                        ?>
                     </tbody>
                 </table>
 

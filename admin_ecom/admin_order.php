@@ -1,8 +1,16 @@
 <?php
 include("../db.php");
 include("../head.php");
-$orderQuery = "SELECT * FROM `user_order`";
-$orderResult = $con->query($orderQuery);
+
+// preparation requete
+$orderQuery = "SELECT id, ref, date, total FROM `user_order`";
+$orderResult = $con->prepare($orderQuery);
+$orderResult->execute();
+$orderResult->store_result();
+
+// Bind the results to variables
+$orderResult->bind_result($id, $ref, $date, $total);
+
 ?>
 
 <!DOCTYPE html>
@@ -63,16 +71,16 @@ $orderResult = $con->query($orderQuery);
             </thead>
             <tbody>
                 <?php
-                while ($order = $orderResult->fetch_assoc()) {
+                while ($orderResult->fetch()) {
                 ?>
                     <tr>
-                        <td><?php echo $order['id']; ?></td>
-                        <td><?php echo $order['ref']; ?></td>
-                        <td><?php echo $order['date']; ?></td>
-                        <td><?php echo $order['total']; ?></td>
+                        <td><?php echo $id; ?></td>
+                        <td><?php echo $ref; ?></td>
+                        <td><?php echo $date; ?></td>
+                        <td><?php echo $total; ?></td>
                         <td>
-                            <form action="confirm_order.php?order_id=<?php echo $order['id']; ?>" method="post">
-                                <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
+                            <form action="confirm_order.php?order_id=<?php echo $id; ?>" method="post">
+                                <input type="hidden" name="order_id" value="<?php echo $id; ?>">
                                 <button type="submit" class="btn btn-success confirm-btn">Confirm Order</button>
                             </form>
                         </td>
