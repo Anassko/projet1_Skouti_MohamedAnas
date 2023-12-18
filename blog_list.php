@@ -3,7 +3,6 @@ include("db.php");
 include("head.php");
 include("header.php");
 
-// Example dummy data for blog posts
 $blogPosts = [
     ['id' => 1, 'title' => 'Discover the Latest Fashion Trends', 'content' => 'Explore fashion trends for this season and stay on the cutting edge of style.'],
     ['id' => 2, 'title' => 'Tips for Flawless Makeup', 'content' => 'Learn professional makeup tips to achieve a flawless look every time.'],
