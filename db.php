@@ -1,21 +1,8 @@
 <?php
+// db.php
 
-function connexionDB()
-{
-    $dbhost = "localhost";
-    $dbuser = "root";
-    $dbpassword = "";
-    $dbname = "ecom1_project";
+$con = mysqli_connect("localhost", "root", "", "ecom1_project");
 
-    $conn = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname);
-
-    if (!$conn) {
-        die("There is a problem => " . mysqli_connect_error());
-    }
-
-    return $conn;
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
 }
-
-$conn = connexionDB();
-
-?>
