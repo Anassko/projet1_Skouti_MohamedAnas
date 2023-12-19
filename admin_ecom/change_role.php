@@ -32,14 +32,14 @@ function updateUserRole($user_id, $new_role_id) {
     global $con;
     $updateRoleQuery = "UPDATE `user` SET `role_id` = ? WHERE `id` = ?";
     
-    $stmt = $con->prepare($updateRoleQuery);
-    $stmt->bind_param("ii", $new_role_id, $user_id);
+    $stmt = mysqli_prepare($con, $updateRoleQuery);
+    mysqli_stmt_bind_param($stmt, "ii", $new_role_id, $user_id);
     
-    if ($stmt->execute()) {
-        $stmt->close();
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
         return true;
     } else {
-        $stmt->close();
+        mysqli_stmt_close($stmt);
         return false;
     }
 }
@@ -48,10 +48,10 @@ function deleteUser($user_id) {
     global $con;
     $deleteUserQuery = "DELETE FROM `user` WHERE `id` = ?";
     
-    $stmt = $con->prepare($deleteUserQuery);
-    $stmt->bind_param("i", $user_id);
+    $stmt = mysqli_prepare($con, $deleteUserQuery);
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
     
-    $stmt->execute();
-    $stmt->close();
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 }
 ?>

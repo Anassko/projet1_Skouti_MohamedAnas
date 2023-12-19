@@ -4,12 +4,12 @@ include("../head.php");
 
 // preparation requete
 $orderQuery = "SELECT id, ref, date, total FROM `user_order`";
-$orderResult = $con->prepare($orderQuery);
-$orderResult->execute();
-$orderResult->store_result();
+$orderResult = mysqli_prepare($con, $orderQuery);
+mysqli_stmt_execute($orderResult);
+mysqli_stmt_store_result($orderResult);
 
 // Bind the results to variables
-$orderResult->bind_result($id, $ref, $date, $total);
+mysqli_stmt_bind_result($orderResult, $id, $ref, $date, $total);
 ?>
 
 <!DOCTYPE html>
@@ -74,7 +74,7 @@ $orderResult->bind_result($id, $ref, $date, $total);
             </thead>
             <tbody>
                 <?php
-                while ($orderResult->fetch()) {
+                while (mysqli_stmt_fetch($orderResult)) {
                 ?>
                     <tr>
                         <td><?php echo $id; ?></td>

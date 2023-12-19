@@ -3,30 +3,29 @@ include("../db.php");
 include("../head.php");
 session_start();
 
-// Check if the user is logged in and is a superadmin (You should implement proper authentication and authorization)
-
+// Check if the user is logged in and is a superadmin 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_product_id'])) {
     $product_id = $_POST['delete_product_id'];
 
     // Prepare the delete query
     $deleteProductQuery = "DELETE FROM `product` WHERE `id` = ?";
-    $stmt = $con->prepare($deleteProductQuery);
-    $stmt->bind_param("i", $product_id);
+    $stmt = mysqli_prepare($con, $deleteProductQuery);
+    mysqli_stmt_bind_param($stmt, "i", $product_id);
 
     // Execute the delete query
-    if ($stmt->execute()) {
+    if (mysqli_stmt_execute($stmt)) {
         $successMessage = "Product deleted successfully.";
     } else {
-        $errorMessage = "Error deleting the product: " . $stmt->error;
+        $errorMessage = "Error deleting the product: " . mysqli_error($con);
     }
 
-    $stmt->close();
+    mysqli_stmt_close($stmt);
 }
 
 // Fetch the list of products
 $productQuery = "SELECT * FROM `product`";
-$productResult = $con->query($productQuery);
+$productResult = mysqli_query($con, $productQuery);
 ?>
 
 <!DOCTYPE html>
@@ -62,7 +61,7 @@ $productResult = $con->query($productQuery);
                 </tr>
             </thead>
             <tbody>
-                <?php while ($product = $productResult->fetch_assoc()) : ?>
+                <?php while ($product = mysqli_fetch_assoc($productResult)) : ?>
                     <tr>
                         <td><?php echo $product['id']; ?></td>
                         <td><?php echo $product['name']; ?></td>
@@ -79,7 +78,6 @@ $productResult = $con->query($productQuery);
             </tbody>
         </table>
         <a href="../admin_ecom/" class="btn btn-secondary return-btn">Return</a>
-    </div>
     </div>
 </body>
 

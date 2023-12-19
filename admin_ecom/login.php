@@ -17,14 +17,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Retrieve user information from the database based on username or email using a prepared statement
         $getUserQuery = "SELECT * FROM `user` WHERE `$field` = ?";
-        $stmt = $con->prepare($getUserQuery);
-        $stmt->bind_param("s", $value);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->close();
+        $stmt = mysqli_prepare($con, $getUserQuery);
+        mysqli_stmt_bind_param($stmt, "s", $value);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        mysqli_stmt_close($stmt);
 
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
+        if (mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
 
             // Verify the password
             if (password_verify($password, $user['pwd'])) {
