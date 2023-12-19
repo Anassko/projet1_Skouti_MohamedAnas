@@ -44,11 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 } elseif ($_SESSION['user_role'] == 2) {
                     // Admin
-                    header("Location: admin.php");
+                    header("Location: admin_ecom/index.php");
                     exit();
                 } elseif ($_SESSION['user_role'] == 3) {
                     // Regular user
-                    header("Location: my_account.php");
+                    header("Location: index.php");
                     exit();
                 } else {
                     $loginError = "Unidentified Role";
