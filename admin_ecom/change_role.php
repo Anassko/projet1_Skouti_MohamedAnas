@@ -5,28 +5,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if the logged-in user is a superadmin
     session_start();
     if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1) {
-        // Superadmin can change user role
         $user_id = $_POST['user_id'];
-        $new_role = $_POST['new_role'] ?? null;
+        $action = $_POST['action'] ?? null;
 
-        if ($new_role == 3) {
-            // Update the user role in the database to Admin
-            updateUserRole($user_id, 2);
-            $_SESSION['success_message'] = 'Role changed to Admin.';
-        } elseif ($new_role == 2) {
-            // Update the user role in the database to User
-            updateUserRole($user_id, 3);
-            $_SESSION['success_message'] = 'Role changed to User.';
+        if ($action == 'change_role') {
+            $new_role = $_POST['new_role'] ?? null;
+
+            if ($new_role == 3) {
+                // Update the user role in the database to Admin
+                updateUserRole($user_id, 2);
+                $_SESSION['success_message'] = 'Role changed to Admin.';
+            } elseif ($new_role == 2) {
+                // Update the user role in the database to User
+                updateUserRole($user_id, 3);
+                $_SESSION['success_message'] = 'Role changed to User.';
+            }
+        } elseif ($action == 'delete_user') {
+            // Delete the user from the database
+            deleteUser($user_id);
+            $_SESSION['success_message'] = 'User deleted successfully.';
         }
     }
-
-    // Redirect back to the superadmin page
-    header("Location: superadmin.php");
-    exit();
-} else {
-    // Redirect if accessed directly without POST data
-    header("Location: superadmin.php");
-    exit();
 }
 
 function updateUserRole($user_id, $new_role_id) {
@@ -43,5 +42,16 @@ function updateUserRole($user_id, $new_role_id) {
         $stmt->close();
         return false;
     }
+}
+
+function deleteUser($user_id) {
+    global $con;
+    $deleteUserQuery = "DELETE FROM `user` WHERE `id` = ?";
+    
+    $stmt = $con->prepare($deleteUserQuery);
+    $stmt->bind_param("i", $user_id);
+    
+    $stmt->execute();
+    $stmt->close();
 }
 ?>

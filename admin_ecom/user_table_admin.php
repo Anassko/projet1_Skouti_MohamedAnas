@@ -9,17 +9,28 @@ $stmt->execute();
 $userResult = $stmt->get_result();
 $stmt->close();
 
-// Handle role change submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
+// Handle role change or user deletion submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_POST['user_id'];
-    $new_role_id = $_POST['new_role_id'];
+    $action = $_POST['action'];
 
-    // Update the user's role in the database
-    $updateQuery = "UPDATE `user` SET `role_id` = ? WHERE `id` = ?";
-    $stmt = $con->prepare($updateQuery);
-    $stmt->bind_param("ii", $new_role_id, $user_id);
-    $stmt->execute();
-    $stmt->close();
+    if ($action === 'change_role') {
+        $new_role_id = $_POST['new_role_id'];
+
+        // Update the user's role in the database
+        $updateQuery = "UPDATE `user` SET `role_id` = ? WHERE `id` = ?";
+        $stmt = $con->prepare($updateQuery);
+        $stmt->bind_param("ii", $new_role_id, $user_id);
+        $stmt->execute();
+        $stmt->close();
+    } elseif ($action === 'delete_user') {
+        // Delete the user from the database
+        $deleteQuery = "DELETE FROM `user` WHERE `id` = ?";
+        $stmt = $con->prepare($deleteQuery);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $stmt->close();
+    }
 }
 ?>
 
@@ -51,16 +62,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
             color: #f8f9fa;
         }
 
-        .change-role-btn {
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: #ffffff;
-            border: none;
-            cursor: pointer;
+        .change-role-btn,
+        .delete-user-btn {
+            display: flex;
+        flex-direction: column;
+        align-items: center; 
+        margin-bottom: 10px;
         }
 
         .change-role-btn:hover {
-            background-color: #0056b3;
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .delete-user-btn:hover {
+            background-color: #007bff;
+            color: #ffffff;
         }
     </style>
     <script>
@@ -71,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
             $.ajax({
                 type: "POST",
                 url: "user_table_admin.php",
-                data: { user_id: user_id, new_role_id: new_role_id },
+                data: { user_id: user_id, new_role_id: new_role_id, action: 'change_role' },
                 success: function (data) {
                     // Reload the page after successful role change
                     location.reload();
@@ -81,6 +98,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
                     console.error(xhr.responseText);
                 }
             });
+        }
+
+        function deleteUser(user_id) {
+            if (confirm("Are you sure you want to delete this user?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "user_table_admin.php",
+                    data: { user_id: user_id, action: 'delete_user' },
+                    success: function (data) {
+                        // Reload the page after successful user deletion
+                        location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle errors here
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
         }
     </script>
 </head>
@@ -134,6 +169,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
                                         <option value="3">User</option>
                                     </select>
                                     <button type="submit" class="btn btn-primary change-role-btn" name="change_role">Change Role</button>
+                                </form>
+
+                                <form class="delete-user-form" onsubmit="deleteUser(<?php echo $user['id']; ?>); return false;">
+                                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                    <button type="submit" class="btn btn-danger change-role-btn" name="delete_user">Delete User</button>
                                 </form>
                             <?php endif; ?>
                         </td>
