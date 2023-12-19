@@ -39,7 +39,8 @@
 <body>
 
 <div id="sidebar">
-    <a href="inserting_pro.php">Products</a>
+    <a href="inserting_pro.php">InsertProducts</a>
+    <a href="delete_product.php">DeleteProducts</a>
     <a href="admin_order.php">Orders</a>
     <a href="user_table_admin.php">Users</a>
 </div>

@@ -54,9 +54,8 @@ session_start();
 <head>
     <!-- MATERIAL DESIGN ICONIC FONT -->
     <link rel="stylesheet" href="fonts/material-design-iconic-font/css/material-design-iconic-font.min.css">
-    
-    <!-- STYLE CSS -->
     <link rel="stylesheet" href="../Rcss/style.css">
+   
 </head>
 <body>
     <div class="container mt-5">
@@ -104,6 +103,7 @@ session_start();
                     <button>Add product</button>
                 </form>
             </div>
+            <a href="../admin_ecom/" class="btn btn-secondary return-btn">Return</a>
         </div>
         </form>
     </div>
