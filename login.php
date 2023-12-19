@@ -6,20 +6,15 @@ session_start();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Collect login data
     $userName = $_POST['username'];
-    $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Check if either username or email is provided
-    if (!empty($userName) || !empty($email)) {
-        // Use username or email based on which one is provided
-        $field = !empty($userName) ? 'user_name' : 'email';
-        $value = !empty($userName) ? $userName : $email;
-
+    // Check if username is provided
+    if (!empty($userName)) {
         // Prepare the statement
-        $getUserQuery = $con->prepare("SELECT * FROM `user` WHERE $field = ?");
+        $getUserQuery = $con->prepare("SELECT * FROM `user` WHERE user_name = ?");
 
         // Bind the parameter
-        $getUserQuery->bind_param("s", $value);
+        $getUserQuery->bind_param("s", $userName);
 
         // Execute the statement
         $getUserQuery->execute();
@@ -38,12 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_role'] = $user['role_id'];
 
                 // Redirect based on user role
-                if ($_SESSION['user_role'] == 1) {
-                    // Superadmin
-                    header("Location: admin_ecom/index.php");
-                    exit();
-                } elseif ($_SESSION['user_role'] == 2) {
-                    // Admin
+                if ($_SESSION['user_role'] == 1 || $_SESSION['user_role'] == 2) {
+                    // Superadmin or Admin
                     header("Location: admin_ecom/index.php");
                     exit();
                 } elseif ($_SESSION['user_role'] == 3) {
@@ -60,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $loginError = "User not found";
         }
     } else {
-        $loginError = "Please enter a username or email";
+        $loginError = "Please enter a username";
     }
 }
 ?>
@@ -86,10 +77,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-wrapper">
                     <label for="username">Username</label>
                     <input type="text" name="username" class="form-control" required>
-                </div>
-                <div class="form-wrapper">
-                    <label for="email">Email</label>
-                    <input type="email" name="email" class="form-control" required>
                 </div>
                 <div class="form-wrapper">
                     <label for="password">Password</label>
