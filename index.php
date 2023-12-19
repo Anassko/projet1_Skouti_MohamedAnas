@@ -4,14 +4,15 @@ include("head.php");
 include("header.php");
 if (!session_id()) session_start();
 
+// Fetch products from the database
 $productQuery = "SELECT * FROM `product`";
-$result = $con->query($productQuery);
+$result = mysqli_query($con, $productQuery);
 
 // Check if there are products
-if ($result->num_rows > 0) {
-    $products = $result->fetch_all(MYSQLI_ASSOC);
+if (mysqli_num_rows($result) > 0) {
+    $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
 } else {
-    $products = []; // Empty array if no products found
+    $products = [];
 }
 ?>
    <body>
@@ -280,18 +281,16 @@ if ($result->num_rows > 0) {
       
    <?php
 
-//Fetch products from the database
+// Fetch products from the database 
 $productQuery = "SELECT * FROM `product`";
-$result = $con->query($productQuery);
+$result = mysqli_query($con, $productQuery);
 
-//Check if there are products
-if ($result->num_rows > 0) {
-   $products = $result->fetch_all(MYSQLI_ASSOC);
+// Check if there are products
+if (mysqli_num_rows($result) > 0) {
+    $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
 } else {
-   $products = []; // Empty array if no products found
+    $products = [];
 }
-
-
 ?>
 
 

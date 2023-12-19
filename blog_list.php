@@ -3,11 +3,12 @@ include("db.php");
 include("head.php");
 include("header.php");
 
-$blogPosts = [
-    ['id' => 1, 'title' => 'Discover the Latest Fashion Trends', 'content' => 'Explore fashion trends for this season and stay on the cutting edge of style.'],
-    ['id' => 2, 'title' => 'Tips for Flawless Makeup', 'content' => 'Learn professional makeup tips to achieve a flawless look every time.'],
-    ['id' => 3, 'title' => 'How to Elegantize Your Outfits with Accessories', 'content' => 'Discover how to choose and pair accessories to make your outfits even more stylish.']
-];
+$blogPosts = array(
+    array('id' => 1, 'title' => 'Discover the Latest Fashion Trends', 'content' => 'Explore fashion trends for this season and stay on the cutting edge of style.'),
+    array('id' => 2, 'title' => 'Tips for Flawless Makeup', 'content' => 'Learn professional makeup tips to achieve a flawless look every time.'),
+    array('id' => 3, 'title' => 'How to Elegantize Your Outfits with Accessories', 'content' => 'Discover how to choose and pair accessories to make your outfits even more stylish.')
+);
+
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +55,7 @@ $blogPosts = [
     if (isset($_GET['id'])) {
         $postId = $_GET['id'];
         // Fetch and display blog post content based on the ID
-        $postContent = "The content for blog post ";
+        $postContent = "The content for blog post $postId";
         echo "<div class='container'>$postContent</div>";
     }
     ?>

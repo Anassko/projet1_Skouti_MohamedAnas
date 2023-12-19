@@ -13,13 +13,13 @@ if (!isset($_SESSION['user_id'])) {
 
 // Retrieve user information using prepared statement
 $userId = $_SESSION['user_id'];
-$getUserQuery = $con->prepare("SELECT * FROM `user` WHERE `id` = ?");
-$getUserQuery->bind_param("i", $userId);
-$getUserQuery->execute();
-$result = $getUserQuery->get_result();
+$getUserQuery = mysqli_prepare($con, "SELECT * FROM `user` WHERE `id` = ?");
+mysqli_stmt_bind_param($getUserQuery, "i", $userId);
+mysqli_stmt_execute($getUserQuery);
+$result = mysqli_stmt_get_result($getUserQuery);
 
-if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
+if (mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
 } else {
     // Redirect to login page if user not found
     header("Location: login.php");

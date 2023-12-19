@@ -11,19 +11,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if username is provided
     if (!empty($userName)) {
         // Prepare the statement
-        $getUserQuery = $con->prepare("SELECT * FROM `user` WHERE user_name = ?");
+        $getUserQuery = mysqli_prepare($con, "SELECT * FROM `user` WHERE user_name = ?");
 
         // Bind the parameter
-        $getUserQuery->bind_param("s", $userName);
+        mysqli_stmt_bind_param($getUserQuery, "s", $userName);
 
         // Execute the statement
-        $getUserQuery->execute();
+        mysqli_stmt_execute($getUserQuery);
 
         // Get the result
-        $result = $getUserQuery->get_result();
+        $result = mysqli_stmt_get_result($getUserQuery);
 
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
+        if (mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
 
             // Verify the password
             if (password_verify($password, $user['pwd'])) {

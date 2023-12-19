@@ -19,21 +19,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $deleteUserQuery = "DELETE FROM `user` WHERE `id` = ?";
 
     // Use prepared statements to prevent SQL injection
-    $stmt = $con->prepare($deleteAddressQuery);
-    $stmt->bind_param("ii", $userId, $userId);
-    $stmt->execute();
-    $stmt->close();
+    $stmt = mysqli_prepare($con, $deleteAddressQuery);
+    mysqli_stmt_bind_param($stmt, "ii", $userId, $userId);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
-    $stmt = $con->prepare($deleteUserQuery);
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $stmt->close();
+    $stmt = mysqli_prepare($con, $deleteUserQuery);
+    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
     // Redirect to a deletion page
     echo '<script>window.location.href = "account_deleted.php";</script>';
     exit();
 }
 ?>
+
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">Delete My Account</h2>

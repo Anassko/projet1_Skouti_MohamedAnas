@@ -5,36 +5,35 @@ include("header.php");
 
 // Fetch products from the database using prepared statement
 $productQuery = "SELECT id, name, price, img_url FROM `product`";
-$stmt = $con->prepare($productQuery);
-$stmt->execute();
+$stmt = mysqli_prepare($con, $productQuery);
+mysqli_stmt_execute($stmt);
 
 // Bind the result variables
-$stmt->bind_result($id, $name, $price, $img_url);
+mysqli_stmt_bind_result($stmt, $id, $name, $price, $img_url);
 
-// Fetch results into an associative array
+// Initialize an empty array to store products
 $products = [];
-while ($stmt->fetch()) {
-    $products[] = [
-        'id' => $id,
-        'name' => $name,
-        'price' => $price,
-        'img_url' => $img_url,
-    ];
+
+// Fetch results into the associative array
+while (mysqli_stmt_fetch($stmt)) {
+    // Store product data in the array using array() function
+    $products[] = array($id, $name, $price, $img_url);
 }
 
-$stmt->close();
+mysqli_stmt_close($stmt);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="css/Fontawesome.css">
-   <style>
-       @import url("https://fonts.googleapis.com/css?family=Poppins:400,500,600,700|Didact+Gothic&display=swap");
 
-       * {
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/Fontawesome.css">
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Poppins:400,500,600,700|Didact+Gothic&display=swap");
+
+        * {
            margin: 0;
            padding: 0;
            box-sizing: border-box;
@@ -53,7 +52,6 @@ $stmt->close();
            padding: 60px 0;
            background: #F0F0F0;
            display: flex;
-           justify-content: space-around;
            flex-wrap: wrap;
            align-items: center;
        }
@@ -215,69 +213,64 @@ $stmt->close();
            display: inline-block;
            transform: scale(0.98);
        }
-   </style>
+
+    </style>
 </head>
 
 <body class="sub_page">
-   <section class="section-bg">
-      <div class="container">
-         <div class="heading_container heading_center">
-            <h2>
-               Our <span>products</span>
-            </h2>
-         </div>
+    <section class="section-bg">
+        <div class="container">
+            <div class="heading_container heading_center">
+                <h2>
+                    Our <span>products</span>
+                </h2>
+            </div>
 
-         <div class="row">
-            <?php
-            if (!empty($products)) {
-               foreach ($products as $product) {
-                  ?>
-                  <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
-                     <div class="single-product">
-                        <div class="product-thumb">
-                           <img src="<?php echo $product['img_url']; ?>" alt="">
+            <div class="row">
+                <?php
+                // Iterate through the products array
+                foreach ($products as $product) {
+                ?>
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+                        <div class="single-product">
+                            <div class="product-thumb">
+                                <img src="<?php echo isset($product[3]) ? $product[3] : ''; ?>" alt="">
+                            </div>
+                            <div class="product-title">
+                                <h3><a href=""><?php echo isset($product[1]) ? $product[1] : ''; ?></a></h3>
+                            </div>
+                            <div class="product-btns">
+                                <a href="" class="btn-small mr-2">$<?php echo isset($product[2]) ? $product[2] : ''; ?></a>
+                                <a href="cart.php?add_to_cart=1&product_id=<?php echo isset($product[0]) ? $product[0] : ''; ?>" class="btn-round mr-2"><i class="fa fa-shopping-cart"></i></a>
+                                <a href="" class="btn-round"><i class="fas fa-info-circle"></i></a>
+                            </div>
                         </div>
-                        <div class="product-title">
-                           <h3><a href=""><?php echo $product['name']; ?></a></h3>
-                        </div>
-                        <div class="product-btns">
-                           <a href="" class="btn-small mr-2">$<?php echo $product['price']; ?></a>
-                           <a href="cart.php?add_to_cart=1&product_id=<?php echo $product['id']; ?>" class="btn-round mr-2"><i class="fa fa-shopping-cart"></i></a>
-                           <a href="" class="btn-round"><i class="fas fa-info-circle"></i></a>
-                        </div>
-                     </div>
-                  </div>
-                  <?php
-               }
-            } else {
-               ?>
-               <div class="col">
-                  <p>No products available.</p>
-               </div>
-               <?php
-            }
-            ?>
-         </div>
+                    </div>
+                <?php
+                }
+                ?>
+            </div>
 
-         <div class="btn-box">
-            <a href="">
-               View All products
-            </a>
-         </div>
-      </div>
-   </section>
+            <div class="btn-box">
+                <a href="">
+                    View All products
+                </a>
+            </div>
+        </div>
+    </section>
 
-   <!-- jQuery -->
-   <script src="js/jquery-3.4.1.min.js"></script>
-   <!-- Popper.js -->
-   <script src="js/popper.min.js"></script>
-   <!-- Bootstrap.js -->
-   <script src="js/bootstrap.js"></script>
-   <!-- Custom.js -->
-   <script src="js/custom.js"></script>
+    <!-- jQuery -->
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <!-- Popper.js -->
+    <script src="js/popper.min.js"></script>
+    <!-- Bootstrap.js -->
+    <script src="js/bootstrap.js"></script>
+    <!-- Custom.js -->
+    <script src="js/custom.js"></script>
 
-   <?php
-   include("footer.php")
-   ?>
+    <?php
+    include("footer.php")
+    ?>
 </body>
+
 </html>
