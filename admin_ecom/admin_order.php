@@ -10,7 +10,6 @@ $orderResult->store_result();
 
 // Bind the results to variables
 $orderResult->bind_result($id, $ref, $date, $total);
-
 ?>
 
 <!DOCTYPE html>
@@ -52,6 +51,10 @@ $orderResult->bind_result($id, $ref, $date, $total);
         .confirm-btn:hover {
             background-color: #218838;
         }
+
+        .return-btn {
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -90,6 +93,8 @@ $orderResult->bind_result($id, $ref, $date, $total);
                 ?>
             </tbody>
         </table>
+
+        <a href="../admin_ecom/" class="btn btn-secondary return-btn">Return</a>
     </div>
 
 </body>
