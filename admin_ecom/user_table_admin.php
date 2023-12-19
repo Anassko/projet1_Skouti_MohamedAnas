@@ -8,7 +8,21 @@ $stmt = $con->prepare($userQuery);
 $stmt->execute();
 $userResult = $stmt->get_result();
 $stmt->close();
+
+// Handle role change submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
+    $user_id = $_POST['user_id'];
+    $new_role_id = $_POST['new_role_id'];
+
+    // Update the user's role in the database
+    $updateQuery = "UPDATE `user` SET `role_id` = ? WHERE `id` = ?";
+    $stmt = $con->prepare($updateQuery);
+    $stmt->bind_param("ii", $new_role_id, $user_id);
+    $stmt->execute();
+    $stmt->close();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,6 +31,7 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -48,6 +63,26 @@ $stmt->close();
             background-color: #0056b3;
         }
     </style>
+    <script>
+        // JavaScript function to handle form submission asynchronously
+        function changeRole(user_id) {
+            var new_role_id = $("#new_role_id_" + user_id).val();
+
+            $.ajax({
+                type: "POST",
+                url: "user_table_admin.php",
+                data: { user_id: user_id, new_role_id: new_role_id },
+                success: function (data) {
+                    // Reload the page after successful role change
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    // Handle errors here
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    </script>
 </head>
 
 <body>
@@ -90,20 +125,17 @@ $stmt->close();
                             ?>
                         </td>
                         <td>
-                            <form action="change_role.php" method="post">
-                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-
-                                <?php if ($user['role_id'] == 1) : ?>
-                                    <strong>Superadmin</strong>
-                                <?php elseif ($user['role_id'] == 2) : ?>
-                                    <strong>Admin</strong>
-                                <?php elseif ($user['role_id'] == 3) : ?>
-                                    <h4 value="2">Admin</h4>
-                                    <button type="submit" class="btn btn-primary change-role-btn">Change Role</button>
-                                <?php else : ?>
-                                    <strong>Unknown Role</strong>
-                                <?php endif; ?>
-                            </form>
+                            <?php if ($user['role_id'] != 1) : ?>
+                                <form class="change-role-form" onsubmit="changeRole(<?php echo $user['id']; ?>); return false;">
+                                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                    <label for="new_role_id">New role:</label>
+                                    <select name="new_role_id" id="new_role_id_<?php echo $user['id']; ?>">
+                                        <option value="2">Admin</option>
+                                        <option value="3">User</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary change-role-btn" name="change_role">Change Role</button>
+                                </form>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php
@@ -111,6 +143,7 @@ $stmt->close();
                 ?>
             </tbody>
         </table>
+        <a href="../admin_ecom/" class="btn btn-secondary">Return</a>
     </div>
 
 </body>
