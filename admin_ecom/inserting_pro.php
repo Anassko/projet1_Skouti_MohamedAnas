@@ -101,9 +101,10 @@ session_start();
                     </div>
                     
                     <button>Add product</button>
+                    <a href="../admin_ecom/" class="btn btn-secondary return-btn">Return</a>
                 </form>
             </div>
-            <a href="../admin_ecom/" class="btn btn-secondary return-btn">Return</a>
+        </div>
         </div>
         </form>
     </div>
