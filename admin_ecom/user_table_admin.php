@@ -2,34 +2,69 @@
 include("../db.php");
 include("../head.php");
 
-// Fetch all users using a prepared statement
-$userQuery = "SELECT * FROM `user`";
-$stmt = $con->prepare($userQuery);
-$stmt->execute();
-$userResult = $stmt->get_result();
-$stmt->close();
+session_start();
 
-// Handle role change or user deletion submission
+// Ensure that the user is logged in before accessing their information.
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+
+    // Retrieve the user's role from the database.
+    $getRoleQuery = "SELECT role_id FROM user WHERE id = ?";
+    $stmt = mysqli_prepare($con, $getRoleQuery);
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if (mysqli_num_rows($result) > 0) {
+        $user = mysqli_fetch_assoc($result);
+        $current_user_role = $user['role_id'];
+    } else {
+        // User not found in the database. Handle accordingly.
+        header("Location: login.php");
+        exit;
+    }
+    mysqli_stmt_close($stmt);
+} else {
+    // Redirect to the login page 
+    header("Location: login.php");
+    exit;
+}
+
+// Fetch all users using a prepared statement.
+$userQuery = "SELECT * FROM `user`";
+$stmt = mysqli_prepare($con, $userQuery);
+mysqli_stmt_execute($stmt);
+$userResult = mysqli_stmt_get_result($stmt);
+mysqli_stmt_close($stmt);
+
+// Handle role change or user deletion submission.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_POST['user_id'];
     $action = $_POST['action'];
 
+    // Check if the user has the right to delete users.
+    if ($action === 'delete_user' && $current_user_role !== 1) {
+        // User not authorized to delete users.
+        echo "You are not authorized to perform this action.";
+        exit;
+    }
+
     if ($action === 'change_role') {
         $new_role_id = $_POST['new_role_id'];
 
-        // Update the user's role in the database
+        // Update the user's role in the database.
         $updateQuery = "UPDATE `user` SET `role_id` = ? WHERE `id` = ?";
-        $stmt = $con->prepare($updateQuery);
-        $stmt->bind_param("ii", $new_role_id, $user_id);
-        $stmt->execute();
-        $stmt->close();
+        $stmt = mysqli_prepare($con, $updateQuery);
+        mysqli_stmt_bind_param($stmt, "ii", $new_role_id, $user_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
     } elseif ($action === 'delete_user') {
-        // Delete the user from the database
+        // Delete the user from the database.
         $deleteQuery = "DELETE FROM `user` WHERE `id` = ?";
-        $stmt = $con->prepare($deleteQuery);
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $stmt->close();
+        $stmt = mysqli_prepare($con, $deleteQuery);
+        mysqli_stmt_bind_param($stmt, "i", $user_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
     }
 }
 ?>
@@ -65,9 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .change-role-btn,
         .delete-user-btn {
             display: flex;
-        flex-direction: column;
-        align-items: center; 
-        margin-bottom: 10px;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         .change-role-btn:hover {
@@ -76,12 +111,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .delete-user-btn:hover {
-            background-color: #007bff;
+            background-color: #dc3545;
             color: #ffffff;
         }
     </style>
     <script>
-        // JavaScript function to handle form submission asynchronously
+        // JavaScript function to handle form submission asynchronously.
         function changeRole(user_id) {
             var new_role_id = $("#new_role_id_" + user_id).val();
 
@@ -90,11 +125,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 url: "user_table_admin.php",
                 data: { user_id: user_id, new_role_id: new_role_id, action: 'change_role' },
                 success: function (data) {
-                    // Reload the page after successful role change
+                    // Reload the page after a successful role change.
                     location.reload();
                 },
                 error: function (xhr, status, error) {
-                    // Handle errors here
+                    // Handle errors here.
                     console.error(xhr.responseText);
                 }
             });
@@ -107,11 +142,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     url: "user_table_admin.php",
                     data: { user_id: user_id, action: 'delete_user' },
                     success: function (data) {
-                        // Reload the page after successful user deletion
+                        // Reload the page after a successful user deletion.
                         location.reload();
                     },
                     error: function (xhr, status, error) {
-                        // Handle errors here
+                        // Handle errors here.
                         console.error(xhr.responseText);
                     }
                 });
@@ -136,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </thead>
             <tbody>
                 <?php
-                while ($user = $userResult->fetch_assoc()) {
+                while ($user = mysqli_fetch_assoc($userResult)) {
                 ?>
                     <tr>
                         <td><?php echo $user['id']; ?></td>
@@ -173,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                                 <form class="delete-user-form" onsubmit="deleteUser(<?php echo $user['id']; ?>); return false;">
                                     <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                    <button type="submit" class="btn btn-danger change-role-btn" name="delete_user">Delete User</button>
+                                    <button type="submit" class="btn btn-danger delete-user-btn" name="delete_user">Delete User</button>
                                 </form>
                             <?php endif; ?>
                         </td>
