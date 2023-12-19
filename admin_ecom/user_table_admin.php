@@ -90,7 +90,6 @@ $stmt->close();
                             ?>
                         </td>
                         <td>
-                            <!-- Inside the form in superadmin.php -->
                             <form action="change_role.php" method="post">
                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
 

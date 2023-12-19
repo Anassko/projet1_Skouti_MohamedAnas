@@ -76,25 +76,42 @@ if (isset($_GET['checkout'])) {
     $user_id = $_SESSION['user_id'];
     $ref = 'ORDER-' . uniqid();
     $date = date('Y-m-d');
-    $total = $totalPrice;
 
-    // Utilisation d'une requête préparée pour l'insertion
+      // Calculate total
+$totalPrice = 0;
+foreach ($_SESSION['cart'] as $product_id => $quantity) {
+    // Retrieve product details from the database
+    $productQuery = "SELECT * FROM `product` WHERE `id` = ?";
+    $stmt = mysqli_prepare($con, $productQuery);
+    mysqli_stmt_bind_param($stmt, "i", $product_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    // If the product details are fetched successfully, calculate subtotal
+    if ($result && $product = mysqli_fetch_assoc($result)) {
+        $subtotal = $quantity * $product['price'];
+        $totalPrice += $subtotal;
+    }
+}
+
+    // Use a prepared statement for insertion
     $insertOrderQuery = "INSERT INTO user_order (ref, date, total, user_id) VALUES (?, ?, ?, ?)";
 
-    // Préparation de la requête
+    // Prepare the statement
     $stmt = mysqli_prepare($con, $insertOrderQuery);
 
-    // Liaison des paramètres
-    mysqli_stmt_bind_param($stmt, "ssdi", $ref, $date, $total, $user_id);
+    // Bind parameters
+    mysqli_stmt_bind_param($stmt, "ssdi", $ref, $date, $totalPrice, $user_id);
 
-    // Exécution de la requête préparée
+    // Execute the prepared statement
     mysqli_stmt_execute($stmt);
 
-    // Fermeture de la requête préparée
+    // Close the prepared statement
     mysqli_stmt_close($stmt);
 
-    // Récupération de l'ID de la commande nouvellement insérée
+    // Retrieve the ID of the newly inserted order
     $order_id = mysqli_insert_id($con);
+
 
     // Insert items into the order_has_product table
     foreach ($_SESSION['cart'] as $product_id => $quantity) {
@@ -123,7 +140,8 @@ if (isset($_GET['checkout'])) {
     updateCartBadge();
 
     // Redirect to the order confirmation page or display a success message
-    echo '<script type="text/javascript">window.location.href="cart.php";</script>';
+    $redirectUrl = "payment.php?totalPrice=" . urlencode($totalPrice);
+    echo '<script type="text/javascript">window.location.href="' . $redirectUrl . '";</script>';
     exit();
 }
 ?>
