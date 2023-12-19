@@ -15,32 +15,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $zipCode = $_POST['zipcode'];
     $country = $_POST['country'];
 
-    // Insert address into the address table using prepared statement
-    $insertAddressQuery = $con->prepare("INSERT INTO `address` (`street_name`, `street_nb`, `city`, `province`, `zip_code`, `country`) VALUES (?, ?, ?, ?, ?, ?)");
-    $insertAddressQuery->bind_param("sissis", $streetName, $streetNumber, $city, $province, $zipCode, $country);
-    
-    if ($insertAddressQuery->execute()) {
-        // Retrieve the generated address ID
-        $addressId = $con->insert_id;
+    // Check if the username already exists
+    $checkUsernameQuery = $con->prepare("SELECT * FROM `user` WHERE `user_name` = ?");
+    $checkUsernameQuery->bind_param("s", $userName);
+    $checkUsernameQuery->execute();
+    $result = $checkUsernameQuery->get_result();
 
-        // Insert user information into the user table using prepared statement
-        $insertUserQuery = $con->prepare("INSERT INTO `user` (`user_name`, `email`, `pwd`, `fname`, `lname`, `billing_address_id`, `shipping_address_id`, `role_id`) VALUES (?, ?, ?, ?, ?, ?, ?, 3)");
-        $insertUserQuery->bind_param("sssssii", $userName, $email, $password, $firstName, $lastName, $addressId, $addressId);
-        
-        if ($insertUserQuery->execute()) {
-            // Redirect to login page or any other page after successful registration
-            header("Location: login.php");
-            exit();
-        } else {
-            echo "Error inserting user: " . $con->error;
-        }
+    if ($result->num_rows > 0) {
+        $registrationError = "Username already exists. Please choose a different username.";
     } else {
-        echo "Error inserting address: " . $con->error;
-    }
+        // Insert address into the address table using prepared statement
+        $insertAddressQuery = $con->prepare("INSERT INTO `address` (`street_name`, `street_nb`, `city`, `province`, `zip_code`, `country`) VALUES (?, ?, ?, ?, ?, ?)");
+        $insertAddressQuery->bind_param("sissis", $streetName, $streetNumber, $city, $province, $zipCode, $country);
 
-    // Close prepared statements
-    $insertAddressQuery->close();
-    $insertUserQuery->close();
+        if ($insertAddressQuery->execute()) {
+            // Retrieve the generated address ID
+            $addressId = $con->insert_id;
+
+            // Insert user information into the user table using prepared statement
+            $insertUserQuery = $con->prepare("INSERT INTO `user` (`user_name`, `email`, `pwd`, `fname`, `lname`, `billing_address_id`, `shipping_address_id`, `role_id`) VALUES (?, ?, ?, ?, ?, ?, ?, 3)");
+            $insertUserQuery->bind_param("sssssii", $userName, $email, $password, $firstName, $lastName, $addressId, $addressId);
+
+            if ($insertUserQuery->execute()) {
+                // Redirect to login page or any other page after successful registration
+                header("Location: login.php");
+                exit();
+            } else {
+                $registrationError = "Error inserting user: " . $con->error;
+            }
+        } else {
+            $registrationError = "Error inserting address: " . $con->error;
+        }
+
+        // Close prepared statements
+        $insertAddressQuery->close();
+        $insertUserQuery->close();
+    }
 }
 ?>
 
@@ -59,6 +69,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="inner">
             <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
                 <h3>Register Now</h3>
+                <?php if (isset($registrationError)) : ?>
+                    <div class="error-message"><?php echo $registrationError; ?></div>
+                <?php endif; ?>
                 <div class="form-group">
                     <div class="form-wrapper">
                         <label for="firstname">First Name</label>
@@ -104,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="province">Province</label>
                     <input type="text" name="province" class="form-control" required>
                 </div>
-            
+
                 <div class="form-wrapper">
                     <label for="zipcode">Zip Code</label>
                     <input type="number" name="zipcode" class="form-control" required>
