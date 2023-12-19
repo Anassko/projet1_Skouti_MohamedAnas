@@ -136,18 +136,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function deleteUser(user_id) {
-            if (confirm("Are you sure you want to delete this user?")) {
-                $.ajax({
-                    type: "POST",
-                    url: "user_table_admin.php",
-                    data: { user_id: user_id, action: 'delete_user' },
-                    success: function (data) {
-                        // Reload the page after a successful user deletion.
-                        location.reload();
-                    },
-                    error: function (xhr, status, error) {
-                        // Handle errors here.
-                        console.error(xhr.responseText);
+        // Check if the logged-in user is authorized to delete users
+        <?php if ($current_user_role !== 1) : ?>
+            alert("You are not authorized to delete users.");
+            return;
+        <?php endif; ?>
+
+        if (confirm("Are you sure you want to delete this user?")) {
+            $.ajax({
+                type: "POST",
+                url: "user_table_admin.php",
+                data: { user_id: user_id, action: 'delete_user' },
+                success: function (data) {
+                    // Reload the page after a successful user deletion.
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    // Handle errors here.
+                    console.error(xhr.responseText);
                     }
                 });
             }
