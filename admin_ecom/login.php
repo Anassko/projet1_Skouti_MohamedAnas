@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 } elseif ($_SESSION['user_role'] == 2) {
                     // Admin
-                    header("Location: admin.php");
+                    header("Location: index.php");
                     exit();
                 } elseif ($_SESSION['user_role'] == 3) {
                     // Regular user
