@@ -2,7 +2,7 @@
 include("../db.php");
 include("../head.php");
 
-// preparation requete
+// requete
 $orderQuery = "SELECT id, ref, date, total FROM `user_order`";
 $orderResult = mysqli_prepare($con, $orderQuery);
 mysqli_stmt_execute($orderResult);
