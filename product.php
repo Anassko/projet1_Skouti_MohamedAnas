@@ -225,7 +225,10 @@ mysqli_stmt_close($stmt);
                     Our <span>products</span>
                 </h2>
             </div>
-
+            <div class="search-container">
+                            <input type="text" id="searchInput" placeholder="Search products...">
+                            <button onclick="searchProducts()">Search</button>
+                            </div>
             <div class="row">
                 <?php
                 // Iterate through the products array
@@ -267,10 +270,30 @@ mysqli_stmt_close($stmt);
     <script src="js/bootstrap.js"></script>
     <!-- Custom.js -->
     <script src="js/custom.js"></script>
+    <script>
+    function searchProducts() {
+        var input, filter, products, product, title, i;
+        input = document.getElementById('searchInput');
+        filter = input.value.toUpperCase();
+        products = document.getElementsByClassName('single-product');
 
+        for (i = 0; i < products.length; i++) {
+            title = products[i].getElementsByClassName('product-title')[0].getElementsByTagName('a')[0];
+            if (title.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                products[i].style.display = "";
+            } else {
+                products[i].style.display = "none";
+            }
+        }
+    }
+</script>
     <?php
     include("footer.php")
     ?>
 </body>
 
+</script>
+
+
 </html>
+
