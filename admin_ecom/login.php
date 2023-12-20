@@ -80,10 +80,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="text" name="username" class="form-control" required>
                 </div>
                 <div class="form-wrapper">
-                    <label for="email">Email</label>
-                    <input type="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-wrapper">
                     <label for="password">Password</label>
                     <input type="password" name="password" class="form-control" required>
                 </div>

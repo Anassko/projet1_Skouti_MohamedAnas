@@ -76,7 +76,8 @@
 
 <!-- "Leave control panel" button -->
 <div id="leaveControlPanel">
-    <a href="../index.php" class="principalpage">Leave The Panel Control</a>
+    <a href="../index.php" class="principalpage">Go to principal page</a>
+    <a href="logout.php">Logout</a>
 </div>
 
 </body>
