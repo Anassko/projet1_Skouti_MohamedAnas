@@ -36,6 +36,22 @@ if (mysqli_num_rows($result) > 0) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $newFirstName = $_POST['firstname'];
     $newLastName = $_POST['lastname'];
+    $newEmail = $_POST['email'];
+    $newPassword = $_POST['password'];  
+
+    // Hash the new password
+    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+    // Update user details
+    $updateUserQuery = "UPDATE user
+                        SET fname = ?, lname = ?, email = ?, pwd = ?
+                        WHERE id = ?";
+    $stmt = mysqli_prepare($con, $updateUserQuery);
+    mysqli_stmt_bind_param($stmt, "ssssi", $newFirstName, $newLastName, $newEmail, $hashedPassword, $userID);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    // Update address details
     $newStreetName = $_POST['streetname'];
     $newStreetNumber = $_POST['streetnumber'];
     $newCity = $_POST['city'];
@@ -43,16 +59,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $newZipCode = $_POST['zipcode'];
     $newCountry = $_POST['country'];
 
-    // Update user details
-    $updateUserQuery = "UPDATE user
-                        SET fname = ?, lname = ?
-                        WHERE id = ?";
-    $stmt = mysqli_prepare($con, $updateUserQuery);
-    mysqli_stmt_bind_param($stmt, "ssi", $newFirstName, $newLastName, $userID);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-
-    // Update address details
     $updateAddressQuery = "UPDATE address
                            SET street_name = ?, street_nb = ?,
                                city = ?, province = ?,
@@ -77,6 +83,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <!-- STYLE CSS -->
     <link rel="stylesheet" href="Rcss/style.css">
+    <style>
+        body {
+            font-family: "Muli-Regular";
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .form-wrapper {
+            margin-bottom: 20px;
+            flex: 0 0 calc(50% - 10px);
+            max-width: calc(50% - 10px);
+        }
+
+        .form-wrapper label {
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            height: 40px;
+            width: 100%;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
@@ -92,6 +132,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-wrapper">
                     <label for="lastname">Last Name</label>
                     <input type="text" name="lastname" value="<?php echo htmlspecialchars($userData['lname']); ?>" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" value="<?php echo htmlspecialchars($userData['email']); ?>" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="streetname">Street Name</label>
+                    <input type="text" name="streetname" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="streetnumber">Street Number</label>
+                    <input type="number" name="streetnumber" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="country">Country</label>
+                    <input type="text" name="country" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="city">City</label>
+                    <input type="text" name="city" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="province">Province</label>
+                    <input type="text" name="province" class="form-control" required>
+                </div>
+                <div class="form-wrapper">
+                    <label for="zipcode">Zip Code</label>
+                    <input type="text" name="zipcode" class="form-control" required>
                 </div>
             </div>
             <button type="submit">Update Now</button>

@@ -120,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="form-wrapper">
                     <label for="zipcode">Zip Code</label>
-                    <input type="number" name="zipcode" class="form-control" required>
+                    <input type="text" name="zipcode" class="form-control" required>
                 </div>
                 <button>Register Now</button>
             </form>
