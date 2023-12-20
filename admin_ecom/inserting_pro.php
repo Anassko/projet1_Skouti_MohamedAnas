@@ -3,14 +3,12 @@ include("../db.php");
 include("../head.php");
 session_start();
 
-// Check if the user is logged in and is a superadmin
-
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect product data
     $productName = $_POST['product_name'];
     $productQuantity = $_POST['product_quantity'];
-    $productPrice = $_POST['product_price'];
+    $productPrice = str_replace(',', '.', $_POST['product_price']); // Replace comma with dot for decimal
     $productDescription = $_POST['product_description'];
 
     // Process the image upload
@@ -41,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            VALUES (?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($con, $insertProductQuery);
-    mysqli_stmt_bind_param($stmt, "siisss", $productName, $productQuantity, $productPrice, $productImageUrl, $productDescription, $uploadFile);
+    mysqli_stmt_bind_param($stmt, "sidsss", $productName, $productQuantity, $productPrice, $productImageUrl, $productDescription, $uploadFile);
 
     if (mysqli_stmt_execute($stmt)) {
         // Product inserted successfully, you can also add additional logic if needed
