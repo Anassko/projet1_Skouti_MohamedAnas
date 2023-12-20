@@ -6,7 +6,6 @@ session_start();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Collect login data
     $userName = $_POST['username'];
-    $email = $_POST['email'];
     $password = $_POST['password'];
 
     // Check if either username or email is provided
@@ -40,11 +39,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 } elseif ($_SESSION['user_role'] == 2) {
                     // Admin
-                    header("Location: admin_ecom/index.php");
+                    header("Location: index.php");
                     exit();
                 } elseif ($_SESSION['user_role'] == 3) {
                     // Regular user
-                    header("Location: index.php");
+                    header("Location: ../index.php");
                     exit();
                 } else {
                     $loginError = "Unidentified Role";
@@ -84,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" name="password" class="form-control" required>
                 </div>
                 <button>Login Now</button>
+                Do not have an account<a href="../register.php"> register now</a>
             </form>
         </div>
     </div>
