@@ -347,8 +347,8 @@ body
 .section-bg {
     padding: 60px 0;
     background: #F0F0F0;
-     display: flex; /* Use flexbox to create a row */
-      justify-content: space-around; /* Optional: adjust the space between cards */
+     display: flex; 
+      justify-content: space-around; 
       flex-wrap: wrap; 
       align-items: center;
 }
