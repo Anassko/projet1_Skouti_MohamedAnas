@@ -11,44 +11,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productName = $_POST['product_name'];
     $productQuantity = $_POST['product_quantity'];
     $productPrice = $_POST['product_price'];
-    $productImageUrl = $_POST['product_image_url'];
     $productDescription = $_POST['product_description'];
-    $productImagePath = $_POST['product_image_path'];
 
-    // Validate the data
-    if (empty($productName) || empty($productQuantity) || empty($productPrice)) {
-        $errorMessage = "Please fill in all required fields.";
-    } else {
-        // Insert the new product into the database using a prepared statement
-        $insertProductQuery = "INSERT INTO `product` (`name`, `quantity`, `price`, `img_url`, `description`, `img_path`) 
-                               VALUES (?, ?, ?, ?, ?, ?)";
+    // Process the image upload
+    if (isset($_FILES['product_image'])) {
+        $uploadDir = './images/';
 
-        $stmt = mysqli_prepare($con, $insertProductQuery);
-        mysqli_stmt_bind_param($stmt, "siisss", $productName, $productQuantity, $productPrice, $productImageUrl, $productDescription, $productImagePath);
-
-        if (mysqli_stmt_execute($stmt)) {
-            // Product inserted successfully, you can also add additional logic if needed
-            $successMessage = "Product added successfully.";
-        } else {
-            $errorMessage = "Error adding the product: " . mysqli_error($con);
+        // Ensure the directory exists
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
         }
 
-        mysqli_stmt_close($stmt);
+        $uploadFile = $uploadDir . basename($_FILES['product_image']['name']);
+
+        if (move_uploaded_file($_FILES['product_image']['tmp_name'], $uploadFile)) {
+            // File uploaded successfully
+            $productImageUrl = $uploadFile; // Set the image URL
+        } else {
+            // Handle the case when the file upload fails
+            $errorMessage = "Error uploading image.";
+        }
     }
-}
 
-// Process the image upload
-if (isset($_FILES['product_image'])) {
-    $uploadDir = './images/';
-    $uploadFile = $uploadDir . basename($_FILES['product_image']['name']);
+    // Concatenate the directory path with the image name for img_url
+    $productImageUrl = './images/' . basename($_FILES['product_image']['name']);
 
-    if (move_uploaded_file($_FILES['product_image']['tmp_name'], $uploadFile)) {
-        // File uploaded successfully
-        echo "Image uploaded successfully.";
+    // Insert the new product into the database using a prepared statement
+    $insertProductQuery = "INSERT INTO `product` (`name`, `quantity`, `price`, `img_url`, `description`, `img_path`) 
+                           VALUES (?, ?, ?, ?, ?, ?)";
+
+    $stmt = mysqli_prepare($con, $insertProductQuery);
+    mysqli_stmt_bind_param($stmt, "siisss", $productName, $productQuantity, $productPrice, $productImageUrl, $productDescription, $uploadFile);
+
+    if (mysqli_stmt_execute($stmt)) {
+        // Product inserted successfully, you can also add additional logic if needed
+        $successMessage = "Product added successfully.";
     } else {
-        // Handle the case when the file upload fails
-        echo "Error uploading image.";
+        $errorMessage = "Error adding the product: " . mysqli_error($con);
     }
+
+    mysqli_stmt_close($stmt);
 }
 ?>
 
@@ -70,7 +72,7 @@ if (isset($_FILES['product_image'])) {
 
         <div class="wrapper" style="background-image: url('Rimages/bg-registration-form-2.jpg'); ">
             <div class="inner">
-                <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+                <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
                     <h3> Add a product</h3>
 
                     <div class="form-wrapper">
@@ -86,24 +88,19 @@ if (isset($_FILES['product_image'])) {
                         <input type="text" name="product_price" class="form-control" required>
                     </div>
                     <div class="form-wrapper">
-                        <label for="product_image_url" class="form-label">Image URL:</label>
-                        <input type="file" name="product_image_url" class="form-control" required>
+                        <label for="product_image" class="form-label">Image:</label>
+                        <input type="file" name="product_image" class="form-control" required>
                     </div>
                     <div class="form-wrapper">
                         <label for="product_description" class="form-label">Description:</label>
                         <textarea name="product_description" class="form-control" rows="4" required></textarea>
                     </div>
-                    <div class="form-wrapper">
-                        <label for="product_image_path" class="form-label">Image Path:</label>
-                        <input type="text" name="product_image_path" class="form-control" required>
-                    </div>
 
-                    <button>Add product</button>
+                    <button type="submit">Add product</button>
                     <a href="../admin_ecom/" class="btn btn-secondary return-btn">Return</a>
                 </form>
             </div>
         </div>
     </div>
 </body>
-
 </html>

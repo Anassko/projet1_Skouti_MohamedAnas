@@ -2,7 +2,13 @@
 include("db.php");
 include("head.php");
 include("header.php");
+
 if (!session_id()) session_start();
+
+// Ajout de la condition pour afficher le bouton Backoffice
+if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == 1 || $_SESSION['user_id'] == 2)) {
+    echo '<button onclick="window.location.href=\'admin_ecom/index.php\'" class="backoffice-btn">Backoffice</button>';
+}
 
 // Fetch products from the database
 $productQuery = "SELECT * FROM `product`";
@@ -324,6 +330,19 @@ body
     
 }
 
+.backoffice-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    background-color: #8B0000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
 
 .section-bg {
     padding: 60px 0;
@@ -586,7 +605,7 @@ a {
             </div>
 
             <div class="btn-box">
-                <a href="">
+            <a href="product.php">
                     View All products
                 </a>
             </div>
